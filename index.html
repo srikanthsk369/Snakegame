@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Snake Game</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="difficulty-modal">
+    <div id="difficulty-options">
+      <h2>Select Difficulty</h2>
+      <button id="easy">Easy</button>
+      <button id="medium">Medium</button>
+      <button id="hard">Hard</button>
+    </div>
+  </div>
+
+  <h1 id="score">Score: 0</h1>
+  <h1 id="high-score">High Score: 0</h1>
+
+  <canvas id="gameCanvas"></canvas>
+
+  <div id="message">Game Over! Restarting soon...</div>
+
+  <!-- Sounds -->
+  <audio id="eat-sound" src="eat.mp3"></audio>
+  <audio id="gameover-sound" src="gameover.mp3"></audio>
+  <audio id="high-score-sound" src="high-score.mp3"></audio>
+
+  <!-- Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+  <script src="script.js"></script>
+</body>
+</html>
