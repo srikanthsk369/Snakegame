@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
   const scoreElement = document.getElementById('score');
@@ -11,8 +11,10 @@ document.addEventListener('DOMContentLoaded', function() {
   const easyBtn = document.getElementById('easy');
   const mediumBtn = document.getElementById('medium');
   const hardBtn = document.getElementById('hard');
+  const newHighScoreBanner = document.getElementById('new-high-score');
 
-  messageElement.style.display = 'none'; // Hide message at start
+  messageElement.style.display = 'none';
+  newHighScoreBanner.style.display = 'none';
 
   const gridSize = 20;
   const tileCount = 20;
@@ -28,32 +30,24 @@ document.addEventListener('DOMContentLoaded', function() {
   let gameRunning = false;
   let wigglePhase = 0;
   let applePulse = 0;
-  let gameSpeed = 100;  // Default speed (Medium)
+  let gameSpeed = 100;
+  let isNewHighScore = false;
 
   highScoreElement.textContent = `High Score: ${highScore}`;
-
-  // Show the difficulty modal when the page loads
   difficultyModal.style.display = 'flex';
 
-  // Difficulty selection event listeners
   easyBtn.addEventListener('click', () => setDifficulty('easy'));
   mediumBtn.addEventListener('click', () => setDifficulty('medium'));
   hardBtn.addEventListener('click', () => setDifficulty('hard'));
 
   function setDifficulty(level) {
-    // Set game speed based on the selected difficulty
-    if (level === 'easy') {
-      gameSpeed = 150;
-    } else if (level === 'medium') {
-      gameSpeed = 100;
-    } else if (level === 'hard') {
-      gameSpeed = 50;
-    }
+    if (level === 'easy') gameSpeed = 150;
+    else if (level === 'medium') gameSpeed = 100;
+    else if (level === 'hard') gameSpeed = 50;
 
-    // Hide the modal and start the game
     difficultyModal.style.display = 'none';
-    gameRunning = true;  // Start the game
-    gameLoop(); // Start the game loop immediately
+    gameRunning = true;
+    gameLoop();
     setInterval(gameLoop, gameSpeed);
   }
 
@@ -62,24 +56,16 @@ document.addEventListener('DOMContentLoaded', function() {
     switch (e.key) {
       case 'ArrowUp':
         if (dy === 1) break;
-        dx = 0;
-        dy = -1;
-        break;
+        dx = 0; dy = -1; break;
       case 'ArrowDown':
         if (dy === -1) break;
-        dx = 0;
-        dy = 1;
-        break;
+        dx = 0; dy = 1; break;
       case 'ArrowLeft':
         if (dx === 1) break;
-        dx = -1;
-        dy = 0;
-        break;
+        dx = -1; dy = 0; break;
       case 'ArrowRight':
         if (dx === -1) break;
-        dx = 1;
-        dy = 0;
-        break;
+        dx = 1; dy = 0; break;
     }
   }
 
@@ -87,29 +73,27 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!gameRunning) return;
 
     moveSnake();
+
     if (checkCollision()) {
       endGame();
       return;
     }
+
     if (appleEaten()) {
       score++;
       scoreElement.textContent = `Score: ${score}`;
 
       if (score > highScore) {
+        isNewHighScore = true;
         highScore = score;
         localStorage.setItem('snakeHighScore', highScore);
         highScoreElement.textContent = `High Score: ${highScore}`;
-        
-        // Play high score sound and show confetti
-        highScoreSound.currentTime = 0;
-        highScoreSound.play();
-        launchConfetti();
       }
 
       snake.push({});
       placeApple();
       eatSound.currentTime = 0;
-      eatSound.play(); // Play Eat Sound
+      eatSound.play();
     }
 
     wigglePhase += 0.2;
@@ -126,7 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
   function drawEverything() {
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     drawGrid();
 
     snake.forEach((segment, index) => {
@@ -138,9 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
         gridSize,
         gridSize
       );
-      if (index === 0) {
-        drawEyes(segment.x, segment.y, offset);
-      }
+      if (index === 0) drawEyes(segment.x, segment.y, offset);
     });
 
     const pulse = Math.sin(applePulse) * 2;
@@ -201,13 +182,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function checkCollision() {
     const head = snake[0];
-    if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
-      return true;
-    }
+    if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) return true;
     for (let i = 1; i < snake.length; i++) {
-      if (head.x === snake[i].x && head.y === snake[i].y) {
-        return true;
-      }
+      if (head.x === snake[i].x && head.y === snake[i].y) return true;
     }
     return false;
   }
@@ -227,7 +204,14 @@ document.addEventListener('DOMContentLoaded', function() {
     messageElement.style.display = 'block';
 
     gameoverSound.currentTime = 0;
-    gameoverSound.play(); // Play Game Over sound
+    gameoverSound.play();
+
+    if (isNewHighScore) {
+      highScoreSound.currentTime = 0;
+      highScoreSound.play();
+      launchConfetti();
+      newHighScoreBanner.style.display = 'block';
+    }
 
     setTimeout(resetGame, 3000);
   }
@@ -237,17 +221,19 @@ document.addEventListener('DOMContentLoaded', function() {
     dx = 0;
     dy = 0;
     score = 0;
+    isNewHighScore = false;
     scoreElement.textContent = `Score: 0`;
     placeApple();
     gameRunning = true;
     canvas.style.filter = 'none';
     messageElement.style.display = 'none';
+    newHighScoreBanner.style.display = 'none';
   }
 
   function launchConfetti() {
     const duration = 3 * 1000;
     const end = Date.now() + duration;
-    const colors = ['#ff0000', '#00ff00', '#ffff00']; // Red, Green, Yellow
+    const colors = ['#ff0000', '#00ff00', '#ffff00'];
 
     (function frame() {
       confetti({
@@ -271,6 +257,5 @@ document.addEventListener('DOMContentLoaded', function() {
     })();
   }
 
-  // Add key event listener for controlling snake
   document.addEventListener('keydown', keyDown);
 });
